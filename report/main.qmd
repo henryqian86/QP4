@@ -1,0 +1,34 @@
+---
+title: "Report on Independent Hypothesis Weighting"
+author: Xihan Qian
+date: March, 2024
+format: 
+  pdf:
+    documentclass: report
+    header-includes: |
+      \usepackage[left=0.8in,right=0.8in,top=0.7in,footskip=1.5pt]{geometry} 
+      % \usepackage{changepage}
+      \usepackage{amsmath,amsthm,amssymb,amsfonts}
+      \usepackage{mathtools}
+      % enumitem for custom lists
+      \usepackage{enumitem}
+      % Load dsfont this to get proper indicator function (bold 1) with      \mathds{1}:
+      \usepackage{dsfont}
+      \usepackage{centernot}
+      \usepackage[usenames,dvipsnames,table]{xcolor}
+    fontsize: 12pt
+    colorlinks: true
+bibliography: ../references/qp.bib
+---
+
+## Introduction
+
+Numerous techniques have been devised for the analysis of high-throughput data to accurately quantify biological features, including genes and proteins. To ensure the reliability of discoveries, the false discovery rate (FDR) has become the dominant approach for setting thresholds. The methods for controlling FDR primarily rely on $p$-values, among which the Benjamini-Hochberg (BH) procedure [@benjamini1995controlling] and Storey's $q$-value[@storey2002direct] are popular. In these cases, we reject hypothesis $i$ if the $p$-value is no more than some threshold $\hat{t}.$
+    
+Ignatiadis, Klaus, Zaugg, and Huber suggest that FDR methods based solely on $p$-values exhibit suboptimal power when the individual tests vary in their statistical properties. [@ignatiadis2016data]. When these methods focus exclusively on $p$-values, they overlook potentially relevant covariates. For example, in RNA-seq differential expression analysis, one such covariate could be the normalized mean counts of genes. Intuitively, genes with higher counts are likely to have greater power in detection compared to those with lower counts. If an additional covariate $X_1, X_2, \dots, X_m$ is included for each of the $m$ tests, a popular method involves first filtering out some hypotheses for which $X_i < x$, based on a predetermined $x$, and then applying the BH procedure. However, Bourgon, Gentleman, and Huber [@bourgon2010independent] point out that this approach could result in some loss of Type I error control and requires the covariate to be independent of the $p$-values. 
+
+A generalization of the independent filtering method is the weighted BH method, where $m$ weights $w_1, w_2, \dots, w_m \geq 0$ are introduced and $\frac{1}{m}\sum_{i=1}^m w_i=1.$ Then the BH procedure is applied on the modified $p$-values: $\frac{p_i}{w_i}$. Assuming that we only want $\tilde{m}$ hypotheses to be retained among all $m$, we would test the remaining $p$-values based on $\alpha \frac{i}{\tilde{m}}, i=1, \ldots, \widetilde{m}$. This is equivalent to assigning $\frac{m}{\widetilde{m}}$ as weights to the retained $p$-values and 0 for others and then applying the BH procedure. The weights are hard to be obtained in practice, hence the newly proposed method, independent hypothesis weighting (IHW) generates weights based on data. The naive version first divides the hypothesis tests into groups based on the values of covariate $X = (X_1, X_2, \dots, X_m)$. Then the weighted BH procedure is applied with each possible weight vector $\boldsymbol{w} = (w_1, w_2, \dots, w_m),$ while the optimal $\boldsymbol{w}^*$ is the vector that lead to the most rejections. In this case, the decision rule becomes we reject hypothesis $i$ if $p$-value is no more than $\hat{t} \cdot \widehat{W}^{-\ell}\left(X_i\right),$ where $i \in I_{\ell}$. Here $I_{\ell}, \ell=1, \ldots, K$ is a partition of the hypotheses into $K$ disjoint folds, while ensuring the independence between the covariate and the $p$-values; and $\widehat{W}^{-\ell}\left(X_i\right)$ is a weight function denoting the fact that each of the functions is learned from the remaining $K-1$ folds [@ignatiadis2021covariate].
+
+\newpage 
+
+## References
