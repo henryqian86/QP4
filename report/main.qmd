@@ -101,6 +101,8 @@ One challenge that this method faces is that it largely depends on selecting an 
 
 ## 3. Extensions
 
+#### 3.1 IHW performance through dataset
+
 In statistical analysis, especially with multiple hypothesis testing, model performance is influenced by the number of tests. The variations observed across different numbers of tests can shed light on the efficiency and reliability of the model. In this section, these variations are looked into, while seeking to understand their underlying causes and proposing potential improvements. The number of tests in the analysis directly correlates with the number of genes under examination, as each gene represents a unique hypothesis to be tested. Given this relationship, analyzing subsets of the gene dataset becomes a viable strategy to examine the impact of test quantity on model performance. The RNA-seq dataset is used again here, with different sizes of subsets taken to firstly explore how the number of discoveries fluctuates. The plot is shown as follows: 
 
 ```{r}
@@ -110,7 +112,7 @@ In statistical analysis, especially with multiple hypothesis testing, model perf
 #| file: ../code/Extension1_Discoveries.R
 ```
 
-It can be observed that as subset size grows, there are more discoveries. This can be due to several reasons. As the size grows, the statistical power is increased, leading to more rejections. It is also possible that larger subsets may enable the detection of smaller effect sizes that would be indiscernible in smaller subsets due to insufficient power. The ability to identify these smaller effects contributes to the overall increase in the number of discoveries as subset size grows. 
+The nominal $\alpha$ level is set to be 0.01 here. I have tried various values ranging from 0.01 to 0.10 while the plot doesn't differ much. First off, it can be observed that as subset size grows, there are more discoveries for both IHW and BH. This can be due to several reasons. As the size grows, the statistical power is increased, leading to more rejections. It is also possible that larger subsets may enable the detection of smaller effect sizes that would be indiscernible in smaller subsets due to insufficient power. The ability to identify these smaller effects contributes to the overall increase in the number of discoveries as subset size grows. However, the number of discoveries for BH and IHW seem similar in general, with that of IHW to be higher at some points. This doesn't seem desired, but I wanted to explore and interpret through more plots.
 
 I thought it would also be intereting to generate a plot of nominal $\alpha$ and FDR for comparisons. I applied it usin the IHW method first, and obtained the following:
 
@@ -121,7 +123,7 @@ I thought it would also be intereting to generate a plot of nominal $\alpha$ and
 #| file: ../code/Extension1_FDRwAlpha.R
 ```
 
-Initially, I found it quite surprising that the curves were well below the $y=x$ line, suggesting that IHW is more conservative than expected. This observation was unexpected, especially since the plots in the paper indicated that for IHW, the curves should be closer to the diagonal line. The main reason why I think this is happening is because of the fact that I generated the covariate column myself. In the context of IHW, the covariate should be informative about the power of each test, while randomly generating covariates might violate this condition. As for the effect of the subset sizes, it seems that the curves don't differ much as the size grows. One likely explanation is that the true positive rate could be homogeneous across the subsets. In this case the FDR control mechanisms will behave similarly across different sizes. This means that the proportion of true positives to false positives remains constant, and thus the estimated FDR will be similar. Another reason could be that all subsets are large enough to have adequate power. Then the increase in subset size may not lead to a proportionate increase in the number of rejections because the power of the test is already high in the smaller subsets.
+Initially, I found it quite surprising that the curves were well below the $y=x$ line, suggesting that IHW is more conservative than expected. This observation was unexpected, especially since the plots in the paper indicated that for IHW, the curves should be closer to the diagonal line. The main reason why I think this is happening is because of the fact that I generated the covariate column myself through negative binomial distributions. In the context of IHW, the covariate should be informative about the power of each test, while randomly generating covariates might violate this condition. As for the effect of the subset sizes, it seems that the curves don't differ much as the size grows. One likely explanation is that the true positive rate could be homogeneous across the subsets. In this case the FDR control mechanisms will behave similarly across different sizes. This means that the proportion of true positives to false positives remains constant, and thus the estimated FDR will be similar. Another reason could be that all subsets are large enough to have adequate power. Then the increase in subset size may not lead to a proportionate increase in the number of rejections because the power of the test is already high in the smaller subsets.
 
 It then occurred to me then that it could be beneficial to also have a similar plot but with the BH procedure. Hence I also produced the following plot. Since there are multiple sizes I tried, I placed the two methods in two separate plots for comparisons.
 
@@ -131,6 +133,43 @@ It then occurred to me then that it could be beneficial to also have a similar p
 #| warning: false
 #| file: ../code/Extension1_BH.R
 ```
+
+This plot with nominal $\alpha$ and estimated FDR using the BH procedure looks similar to that with IHW, which also matches what the paper suggested with one of the datasets in figure 2(f) [@ignatiadis2016data]. 
+
+Although the results are not desired since the number of discoveries for IHW doesn't exceed BH by much, indicating that there's not an improvement by using IHW, I wanted to keep these plots and analyses because they are a great indication that this happens when the covariate is not informative. This is further explored through simulations of my own, while intentionally enforcing the covariates to be informative.
+
+#### 3.2 IHW performance through simulations
+
+In this section I simulated $p$-values and covariates myself, specifically requiring both of them to relate to the effect size, which was generated through a normal distribution. The following procedures are similar to the previous subsection, however, the results are drastically different. The number of discoveries is shown as:
+
+```{r}
+#| echo: false
+#| eval: true 
+#| warning: false
+#| file: ../code/Extension1_selfDiscoveries.R
+```
+
+The nominal $\alpha$ is chosen to be 0.05 here. As it can be seen, the number of discoveries for IHW grows more than BH as the subset size increases. The discrepancy between the discoveries is now due to the fact that the covariate is informative. 
+
+Again, plots of nominal $\alpha$ and estimated FDR are plotted for IHW:
+
+```{r}
+#| echo: false
+#| eval: true 
+#| warning: false
+#| file: ../code/Extension1_selfIHW.R
+```
+
+This is still similar to that by using the BH procedure:
+
+```{r}
+#| echo: false
+#| eval: true 
+#| warning: false
+#| file: ../code/Extension1_selfBH.R
+```
+
+However, comparing with before when the RNA-seq dataset was used and the covariate was not informative, the curves are more closely aligned with the diagonal line. Hence with better chosen covariates, these methods can be found less conservative.
 
 \newpage 
 
