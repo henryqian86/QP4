@@ -83,7 +83,7 @@ However, with this approach, there are also some disadvantages including potenti
 In the first modification, the ECDF $\hat{F}_g$ of the $p$-values in group $g$ is replaced by the least concave majorant version called the Grenander estimator $\tilde{F}_g$. With this the maximization problem can be efficiently solved. The second modification involves randomly splitting the hypotheses into $K$ folds, where $K$ is usually taken to be 5. Then the maximization problem with the previous modification is applied to the remaining folds, leading to a weight $\tilde{w}=\left(\widetilde{w}_1, \ldots, \widetilde{w}_G\right)$. The independence criterion between the hypotheses would guarantee the $p$-value $P_i$ to be independent of the assigned weight $w_i$ when the null hypothesis is true. The third modification ensures that the weights learned with $K-1$ folds can be generalized to the held-out fold by adding a regularization parameter $\lambda$. The specific constraints are customized to whether the covariates are ordered or not. 
 
 #### 2.4 Simulation
-Wanting to see how this packages work exactly, I used one of the datasets suggested by the paper using RNA-seq data with read counts for genes as a covariate [@bottomly2011evaluating]. It is worth noting that in the original dataset provided in the paper by Bottomly, the column of read counts is only binary, providing information of whether the counts are considered low or not based on a threshold after a log transformation. Without knowing the specific transformation applied, it is hard to achieve the original column, hence I self-generated a column of count reads using the negative binomial distribution. After trying some combinations, I chose the dispersion parameter to be 0.2 while the mean read counts is 10,000. The plot generated is as follows. There is a discrepancy between this plot and that generated in the paper possibly because the difference in the read counts, however, it can still be observed that the number of discoveries of IHW is no fewer than that of BH.
+Wanting to see how this packages work exactly, I used one of the datasets suggested by the paper using RNA-seq data with read counts for genes as a covariate [@bottomly2011evaluating]. It is worth noting that in the original dataset provided in the paper by Bottomly, the column of read counts is only binary, providing information of whether the counts are considered low or not based on a threshold after a log transformation. Without knowing the specific transformation applied, it is hard to achieve the original column, hence I self-generated a column of count reads using the negative binomial distribution. After trying some combinations, I chose the dispersion parameter to be 0.2 while the mean read counts is 1,000. The plot generated is as follows. There is a discrepancy between this plot and that generated in the paper possibly because the difference in the read counts, however, it can still be observed that the number of discoveries of IHW is no fewer than that of BH in most cases.
 
 
 
@@ -101,7 +101,36 @@ One challenge that this method faces is that it largely depends on selecting an 
 
 ## 3. Extensions
 
+In statistical analysis, especially with multiple hypothesis testing, model performance is influenced by the number of tests. The variations observed across different numbers of tests can shed light on the efficiency and reliability of the model. In this section, these variations are looked into, while seeking to understand their underlying causes and proposing potential improvements. The number of tests in the analysis directly correlates with the number of genes under examination, as each gene represents a unique hypothesis to be tested. Given this relationship, analyzing subsets of the gene dataset becomes a viable strategy to examine the impact of test quantity on model performance. The RNA-seq dataset is used again here, with different sizes of subsets taken to firstly explore how the number of discoveries fluctuates. The plot is shown as follows: 
 
+```{r}
+#| echo: false
+#| eval: true 
+#| warning: false
+#| file: ../code/Extension1_Discoveries.R
+```
+
+It can be observed that as subset size grows, there are more discoveries. This can be due to several reasons. As the size grows, the statistical power is increased, leading to more rejections. It is also possible that larger subsets may enable the detection of smaller effect sizes that would be indiscernible in smaller subsets due to insufficient power. The ability to identify these smaller effects contributes to the overall increase in the number of discoveries as subset size grows. 
+
+I thought it would also be intereting to generate a plot of nominal $\alpha$ and FDR for comparisons. I applied it usin the IHW method first, and obtained the following:
+
+```{r}
+#| echo: false
+#| eval: true 
+#| warning: false
+#| file: ../code/Extension1_FDRwAlpha.R
+```
+
+Initially, I found it quite surprising that the curves were well below the $y=x$ line, suggesting that IHW is more conservative than expected. This observation was unexpected, especially since the plots in the paper indicated that for IHW, the curves should be closer to the diagonal line. The main reason why I think this is happening is because of the fact that I generated the covariate column myself. In the context of IHW, the covariate should be informative about the power of each test, while randomly generating covariates might violate this condition. As for the effect of the subset sizes, it seems that the curves don't differ much as the size grows. One likely explanation is that the true positive rate could be homogeneous across the subsets. In this case the FDR control mechanisms will behave similarly across different sizes. This means that the proportion of true positives to false positives remains constant, and thus the estimated FDR will be similar. Another reason could be that all subsets are large enough to have adequate power. Then the increase in subset size may not lead to a proportionate increase in the number of rejections because the power of the test is already high in the smaller subsets.
+
+It then occurred to me then that it could be beneficial to also have a similar plot but with the BH procedure. Hence I also produced the following plot. Since there are multiple sizes I tried, I placed the two methods in two separate plots for comparisons.
+
+```{r}
+#| echo: false
+#| eval: true 
+#| warning: false
+#| file: ../code/Extension1_BH.R
+```
 
 \newpage 
 
