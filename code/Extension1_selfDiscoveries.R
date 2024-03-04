@@ -1,17 +1,31 @@
-library(edgeR)
 library(ggplot2)
 library(IHW)
 
-setwd("/Users/henryqian/Desktop/QP4/data")
-df <- read.table("pone.0017820.s009.txt", sep="\t", header = T)
+set.seed(42)
 
-num_genes <- 11529
-dispersion <- 0.2 
-size <- 1 / dispersion
-mean_read_count = 1000
-covariate <- rnbinom(n = num_genes, size = size, mu = mean_read_count)
-df$covariate = covariate
-df = df[c(4, 21)]
+simulate_informative_data <- function(num_tests, prop_alt = 0.2, effect_size = 2) {
+  # Simulate effect sizes
+  effect_sizes <- rnorm(num_tests, sd = 1)
+  # Determine which tests are alternatives based on proportion
+  is_alt <- runif(num_tests) < prop_alt
+  # Add an effect to the alternatives
+  effect_sizes[is_alt] <- effect_sizes[is_alt] + effect_size
+  
+  # Simulate p-values from effect sizes
+  # Assuming a two-sided test, and under the null, effect sizes follow a standard normal distribution
+  pvalues <- 2 * pnorm(-abs(effect_sizes))
+  
+  # Create an informative covariate
+  # Here, the covariate is correlated with effect size, with some noise
+  covariate <- effect_sizes + rnorm(num_tests, sd = 0.5)
+
+  data <- data.frame(p.value = pvalues, covariate = covariate, is_alt = is_alt)
+  return(data)
+}
+
+# Simulate data
+num_tests <- 10000
+df <- simulate_informative_data(num_tests)
 
 # Function to apply both IHW and BH on a subset of data and calculate discoveries
 apply_methods <- function(subset_df) {
@@ -48,7 +62,7 @@ analyze_subsets <- function(df, subset_sizes) {
   return(results)
 }
 
-subset_sizes <- seq(from = 3000, to = 11000, length.out = 9)
+subset_sizes <- seq(from = 3000, to = 10000, length.out = 8)
 
 # Perform the analysis
 results <- analyze_subsets(df, subset_sizes)
