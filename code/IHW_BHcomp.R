@@ -12,9 +12,9 @@ set.seed(1109)
 num_genes <- 11529
 
 # Parameters for the negative binomial distribution
-dispersion <- 0.2       # Dispersion parameter, where variance = mean + mean^2 * dispersion
+dispersion <- 0.2 
 
-# Size parameter for rnbinom (related to the variance)
+# Size parameter 
 size <- 1 / dispersion
 
 alphaDis <- function(size, mean_read_count) {
