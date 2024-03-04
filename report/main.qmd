@@ -31,8 +31,10 @@ To address this limitation, a novel approach known as independent hypothesis wei
 
 ## 2. Theories 
 
+There have been existing attempts to increase power by using covariates and this sections starts off by introducing some known methods.
+
 #### 2.1 Weighted and Group weighted BH procedure
-A generalization of the independent filtering method is the weighted BH method with $m$ hypotheses $H_1, H_2, \dots, H_m$ and $m$ weights $w_1, w_2, \dots, w_m \geq 0$ that satisfy $\frac{1}{m}\sum_{i=1}^m w_i=1.$ After the weights are obtained, the BH procedure is applied on the modified $p$-values: $\frac{p_i}{w_i}$. Assuming that we only want $\tilde{m}$ hypotheses to be retained among all $m$, we would test the remaining $p$-values based on $\alpha \frac{i}{\tilde{m}}, i=1, \ldots, \widetilde{m}$. This is equivalent to assigning $\frac{m}{\widetilde{m}}$ as weights to the retained $p$-values and 0 for others and then applying the BH procedure. However, in this case the weights have to be determined prior to seeing the $p$-values, while this could be challenging. This is exactly what IHW is trying to investigate, and it is closely related to GBH. In this method, there are $G$ groups where each $X_i$ takes the same value within each group. GBH first estimates the proportion of null hypotheses by $\widehat{\pi}_{0}(g)$, then weights the hypotheses proportionally to $\frac{1-\widehat{\pi}_{0}(g)}{\widehat{\pi}_{0}(g)}$, and finally apply the BH procedure. However, the asymptotic theories in this method doesn't function well when the number of hypotheses $\frac{m}{G}$ is finite [@ignatiadis2021covariate]. To resolve this issue, cross-weighting is used, where the idea is analogous to cross-fitting in regression settings, and this gives rise to the naive version of IHW.
+The weighted BH method has $m$ hypotheses $H_1, H_2, \dots, H_m$ and $m$ weights $w_1, w_2, \dots, w_m \geq 0$ that satisfy $\frac{1}{m}\sum_{i=1}^m w_i=1.$ After the weights are obtained, the BH procedure is applied on the modified $p$-values: $\frac{p_i}{w_i}$. In this scenario, selecting the weights before observing the $p$-values is essential, relying on prior knowledge or information indicating the likelihood of some hypotheses being true over others. This requirement presents a significant challenge, one that IHW seeks to address, and it utilizes the grouped weighted BH procedure (GBH). In this method, there are $G$ groups where each $X_i$ takes the same value within each group. GBH first estimates the proportion of null hypotheses by $\widehat{\pi}_{0}(g)$, then weights the hypotheses proportionally to $\frac{1-\widehat{\pi}_{0}(g)}{\widehat{\pi}_{0}(g)}$, and finally apply the BH procedure. However, the asymptotic theories in this method doesn't function well when the number of hypotheses $\frac{m}{G}$ is finite [@ignatiadis2021covariate]. To resolve this issue, cross-weighting is used, where the idea is analogous to cross-fitting in regression settings, and this gives rise to the naive version of IHW.
 
 #### 2.2 Naive IHW and two-groups model
 This version, also abbreviated as IHW-GBH since it is based off GBH, first divides the hypothesis tests into $G$ groups based on the values of covariate $X = (X_1, X_2, \dots, X_m)$, with $m_g$ number of hypotheses in the $g$-th group. It is also assumed that we have access to the $p$-values $P=(P_1, P_2, \dots, P_m)$, which is independent of $X$ under the null. With this setup, $\sum_{g=1}^G m_g=m$. Then the weighted BH procedure is applied with each possible weight vector $\boldsymbol{w} = (w_1, w_2, \dots, w_G),$ while the optimal $\boldsymbol{w}^*$ is the vector that lead to the most rejections. This method extends the BH procedure, making it pertinent to discuss the associated maximization problem. This problem stems from the two groups model [@efron2008microarrays], which is a 
@@ -79,6 +81,16 @@ However, with this approach, there are also some disadvantages including potenti
 
 #### 2.3 IHW
 In the first modification, the ECDF $\hat{F}_g$ of the $p$-values in group $g$ is replaced by the least concave majorant version called the Grenander estimator $\tilde{F}_g$. With this the maximization problem can be efficiently solved. The second modification involves randomly splitting the hypotheses into $K$ folds, where $K$ is usually taken to be 5. Then the maximization problem with the previous modification is applied to the remaining folds, leading to a weight $\tilde{w}=\left(\widetilde{w}_1, \ldots, \widetilde{w}_G\right)$.
+
+
+```{r}
+#| echo: false
+#| eval: true 
+#| warning: false
+#| file: ../code/IHW_BHcomp.R
+```
+
+
 
 \newpage 
 
