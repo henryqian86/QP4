@@ -29,7 +29,7 @@ However, Ignatiadis, Klaus, Zaugg, and Huber suggest that FDR methods based sole
     
 To address this limitation, a novel approach known as independent hypothesis weighting (IHW) has been introduced. IHW improves the power of multiple hypothesis testing while controlling the FDR rate. The key innovation of IHW is that it recognizes that not all tests have the same power or the same prior probability of being true. It allows for the assignment of different weights to different hypotheses based on covariates that are predictive of the test's power or its probability of being a true discovery. These covariates can be anything from the biological characteristics of the genes being tested to the technical aspects of the measurements. More explorations will be done in the following sections on this method.
 
-## 2. Theories 
+## 2. Methodology and Simulation
 
 There have been existing attempts to increase power by using covariates and this sections starts off by introducing some known methods.
 
@@ -80,7 +80,12 @@ where $R(t, \mathbf{w}) = \sum_{i=1}^m \mathbf{1}_{\left\{P_i \leq w_gt\right\}}
 However, with this approach, there are also some disadvantages including potential loss of Type I error, complications in solving the maximization problem, and its inability to scale when large number of tests are present. That is why modifications are made, leading to the IHW method.
 
 #### 2.3 IHW
-In the first modification, the ECDF $\hat{F}_g$ of the $p$-values in group $g$ is replaced by the least concave majorant version called the Grenander estimator $\tilde{F}_g$. With this the maximization problem can be efficiently solved. The second modification involves randomly splitting the hypotheses into $K$ folds, where $K$ is usually taken to be 5. Then the maximization problem with the previous modification is applied to the remaining folds, leading to a weight $\tilde{w}=\left(\widetilde{w}_1, \ldots, \widetilde{w}_G\right)$.
+In the first modification, the ECDF $\hat{F}_g$ of the $p$-values in group $g$ is replaced by the least concave majorant version called the Grenander estimator $\tilde{F}_g$. With this the maximization problem can be efficiently solved. The second modification involves randomly splitting the hypotheses into $K$ folds, where $K$ is usually taken to be 5. Then the maximization problem with the previous modification is applied to the remaining folds, leading to a weight $\tilde{w}=\left(\widetilde{w}_1, \ldots, \widetilde{w}_G\right)$. The independence criterion between the hypotheses would guarantee the $p$-value $P_i$ to be independent of the assigned weight $w_i$ when the null hypothesis is true. The third modification ensures that the weights learned with $K-1$ folds can be generalized to the held-out fold by adding a regularization parameter $\lambda$. The specific constraints are customized to whether the covariates are ordered or not. 
+
+#### 2.4 Simulation
+Wanting to see how this packages work exactly, I used one of the datasets suggested by the paper using RNA-seq data with read counts for genes as a covariate [@bottomly2011evaluating]. It is worth noting that in the original dataset provided in the paper by Bottomly, the column of read counts is only binary, providing information of whether the counts are considered low or not based on a threshold after a log transformation. Without knowing the specific transformation applied, it is hard to achieve the original column, hence I self-generated a column of count reads using the negative binomial distribution. After trying some combinations, I chose the dispersion parameter to be 0.2 while the mean read counts is 10,000. The plot generated is as follows. There is a discrepancy between this plot and that generated in the paper possibly because the difference in the read counts, however, it can still be observed that the number of discoveries of IHW is no fewer than that of BH.
+
+
 
 
 ```{r}
@@ -89,6 +94,12 @@ In the first modification, the ECDF $\hat{F}_g$ of the $p$-values in group $g$ i
 #| warning: false
 #| file: ../code/IHW_BHcomp.R
 ```
+
+#### 2.5 Discussions
+
+One challenge that this method faces is that it largely depends on selecting an appropriate covariate that influences the power of each hypothesis test but is independent of the p-values under the null hypothesis. Identifying such a covariate is challenging and crucial; an unsuitable choice can diminish IHW's benefits or even degrade performance compared to traditional correction methods. This is a reason of why the plot above doesn't show great improvements. Another possible limitation is when there are datasets with high heterogeneity, where the covariate's relationship to test power varies significantly. In such cases, IHW's ability to accurately weight hypotheses could be compromised, potentially leading to less effective multiple testing correction. 
+
+## 3. Extensions
 
 
 
