@@ -27,7 +27,7 @@ Numerous techniques have been devised for the analysis of high-throughput data t
     
 However, Ignatiadis, Klaus, Zaugg, and Huber suggest that FDR methods based solely on $p$-values exhibit suboptimal power when the individual tests vary in their statistical properties. [@ignatiadis2016data]. When these methods focus exclusively on $p$-values, they overlook potentially relevant covariates. For example, in RNA-seq differential expression analysis, one such covariate could be the normalized mean counts of genes. Intuitively, genes with higher counts are likely to have greater power in detection compared to those with lower counts, and it would be optimal to include this relationship in the analysis. 
     
-To address this limitation, a novel approach known as independent hypothesis weighting (IHW) has been introduced. IHW improves the power of multiple hypothesis testing while controlling the FDR rate. The key innovation of IHW is that it recognizes that not all tests have the same power or the same prior probability of being true. It allows for the assignment of different weights to different hypotheses based on covariates that are predictive of the test's power or its probability of being a true discovery. These covariates can be anything from the biological characteristics of the genes being tested to the technical aspects of the measurements. More explorations will be done in the following sections on this method.
+To address this limitation, a novel approach known as independent hypothesis weighting (IHW) has been introduced. IHW improves the power of multiple hypothesis testing while controlling the FDR. The key innovation of IHW is that it recognizes that not all tests have the same power or the same prior probability of being true. It allows for the assignment of different weights to different hypotheses based on covariates that are predictive of the test's power or its probability of being a true discovery. These covariates can be anything from the biological characteristics of the genes being tested to the technical aspects of the measurements. More explorations will be done in the following sections on this method.
 
 ## 2. Methodology and Simulation
 
@@ -149,7 +149,7 @@ In this section I simulated $p$-values and covariates myself, specifically requi
 #| file: ../code/Extension1_selfDiscoveries.R
 ```
 
-The nominal $\alpha$ is chosen to be 0.05 here. As it can be seen, the number of discoveries for IHW grows more than BH as the subset size increases. The discrepancy between the discoveries is now due to the fact that the covariate is informative. 
+The nominal $\alpha$ is chosen to be 0.05 here. As it can be seen, the number of discoveries for IHW grows more than BH as the subset size increases. When the size is 10000, there are many more discoveries by IHW than BH compared with when the size is 3000. The discrepancy between the discoveries is now due to the fact that the covariate is informative. 
 
 Again, plots of nominal $\alpha$ and estimated FDR are plotted for IHW:
 
@@ -169,7 +169,34 @@ This is still similar to that by using the BH procedure:
 #| file: ../code/Extension1_selfBH.R
 ```
 
-However, comparing with before when the RNA-seq dataset was used and the covariate was not informative, the curves are more closely aligned with the diagonal line. Hence with better chosen covariates, these methods can be found less conservative.
+As it can been seen, the informativeness of the covariate in using IHW is essential in increasing the number of discoveries. Improvements can be made by selecting covariates that are more predictive of the power of each test. If possible, transformations could potentially be applied to the covariate vector to better capture information that affects test power. As shown in the first plot of the section, as the sample sizes increases, it helps IHW to find more discoveries than methods like BH procedure while both have FDR under control.
+
+#### 3.3 More covariates
+
+Given that the current implementation of IHW is designed to work with a single covariate, integrating multiple covariates into this framework presents a methodological challenge. However, several strategies could be employed to utilize multiple covariates effectively within the IHW. For instance, when there are multiple columns of informative covariates, Principal Component Analysis (PCA) can be utilized to reduce the dimensionality of covariates for IHW. Using my own simulated data again, in addition to the one column of covariate from before, I added another column that is related to the effect size with some slight parameter variations, while applying PCA. I used the first principal component, which explains the most variance, as the new covariate and applied the same procedure as before. The number of discoveries made compared with the BH procedure is again plotted:
+
+```{r}
+#| echo: false
+#| eval: true 
+#| warning: false
+#| file: ../code/Extension2_PCADiscoveries.R
+```
+
+
+There are some slight differences as before since now the covariate vector has been modified, however, the general trend still remains the same and similar interpretations can be made.
+
+Another possible way is to incorporate the information of the multiple columns of covariates into one composite column, which is similiar compared with PCA in the sense that PCA decomposes the covariate matrix into principal components (PCs), each a linear combination of the original covariates. A regression-based approach to generate this composite covariate can be particularly informative, as it allows the use of a model to estimate an aspect of the tests from multiple covariates. I included effect size in the regression model while using the predicted covariate as the new column. I expected the plot to be similar and it did:
+
+```{r}
+#| echo: false
+#| eval: true 
+#| warning: false
+#| file: ../code/Extension2_Regression.R
+```
+
+## 4. Conclusion
+
+In summary, Independent Hypothesis Weighting (IHW) emerges as an enhancement to traditional multiple testing correction methods, notably through its incorporation of covariate information to refine hypothesis weighting. As evidenced by the simulations plots, the informativeness of the covariate is crucial in the efficacy of IHW. Extensions employing Principal Component Analysis (PCA) and regression models further augment IHW's adaptability, enabling the effective consolidation of multiple covariates into a singular, informative metric. Consequently, IHW offers a sophisticated framework for multiple testing correction, ensuring control over false discoveries while enhancing the discovery of true signals.
 
 \newpage 
 
