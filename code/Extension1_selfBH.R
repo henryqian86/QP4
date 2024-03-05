@@ -34,6 +34,13 @@ subset_sizes <- seq(from = 3000, to = 10000, length.out = 8)
 # Nominal alpha levels to evaluate
 alpha_levels <- seq(0.01, 0.1, by = 0.01)
 
+calculate_fdr_bh <- function(pvalues, alpha) {
+  p_adjusted <- p.adjust(pvalues, method = "BH")
+  significant <- p_adjusted < alpha
+  estimated_fdr <- mean(p_adjusted[significant])  # Estimate FDR as the mean adjusted p-value for significant tests
+  return(estimated_fdr)
+}
+
 # Perform the analysis for different subset sizes
 fdr_vs_alpha <- lapply(subset_sizes, function(size) {
   # Sample 'size' rows from the dataframe
