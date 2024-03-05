@@ -49,7 +49,7 @@ analyze_subsets <- function(df, subset_sizes) {
   results <- list()
   
   for (size in subset_sizes) {
-    # Sample `size` rows from the dataframe
+    # Sample size rows from the dataframe
     subset_df <- df[sample(nrow(df), size), ]
     
     # Apply IHW and BH to the subset

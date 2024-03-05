@@ -19,8 +19,11 @@ simulate_informative_data <- function(num_tests, prop_alt = 0.2, effect_size = 2
   # Create an informative covariate
   # Here, the covariate is correlated with effect size, with some noise
   covariate <- effect_sizes + rnorm(num_tests, sd = 0.5)
+  
+  # additional covariate column created
   covariate2 <- 2*effect_sizes + rnorm(num_tests, sd = 0.7)
   
+  # adding the covariates into the dataframe
   data <- data.frame(p.value = pvalues, covariate1 = covariate, covariate2 = covariate2, is_alt = is_alt)
   return(data)
 }
@@ -30,6 +33,7 @@ num_tests <- 10000
 df <- simulate_informative_data(num_tests)
 
 # Assuming 'data' has one column 'p.value' and other columns are covariates
+# obtaining covariate matrix for PCA analyses
 covariates <- df[, -which(names(df) == "p.value")]
 covariates <- scale(covariates)  # Standardizing
 

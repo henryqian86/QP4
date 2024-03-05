@@ -5,7 +5,7 @@ library(tidyr)
 library(reshape2)
 library(DESeq2)
 
-setwd("/Users/henryqian/Desktop/QP4/data")
+setwd("../data")
 df <- read.table("pone.0017820.s009.txt", sep="\t", header = T)
 
 num_genes <- 11529
@@ -23,7 +23,7 @@ calculate_fdr_bh <- function(pvalues, alpha) {
   return(estimated_fdr)
 }
 
-# Define the sizes of subsets you want to analyze
+# subset sizes
 subset_sizes <- seq(from = 3000, to = 11000, length.out = 9)
 
 # Nominal alpha levels to evaluate
@@ -31,7 +31,7 @@ alpha_levels <- seq(0.01, 0.1, by = 0.01)
 
 # Perform the analysis for different subset sizes
 fdr_vs_alpha <- lapply(subset_sizes, function(size) {
-  # Sample 'size' rows from the dataframe
+  # Sample size rows from the dataframe
   subset_df <- df[sample(nrow(df), size), ]
   
   # Calculate FDR for each alpha level using BH

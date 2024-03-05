@@ -5,7 +5,7 @@ library(tidyr)
 library(reshape2)
 library(DESeq2)
 
-setwd("/Users/henryqian/Desktop/QP4/data")
+setwd("../data")
 df <- read.table("pone.0017820.s009.txt", sep="\t", header = T)
 
 num_genes <- 11529
@@ -30,7 +30,7 @@ analyze_subsets <- function(df, subset_sizes) {
   results <- list()
   
   for (size in subset_sizes) {
-    # Sample `size` rows from the dataframe
+    # Sample size rows from the dataframe
     subset_df <- df[sample(nrow(df), size), ]
     
     # Apply IHW to the subset
@@ -59,7 +59,6 @@ calculate_fdr <- function(adj_pvalues, alpha) {
 # Nominal alpha levels to evaluate
 alpha_levels <- seq(0.01, 0.1, by = 0.01)
 
-# Assuming 'results' is your list of ihw_result objects
 fdr_vs_alpha <- lapply(names(results), function(size) {
   adj_pvalues <- results[[size]]@df$adj_pvalue
   fdrs <- sapply(alpha_levels, calculate_fdr, adj_pvalues = adj_pvalues)

@@ -36,7 +36,7 @@ analyze_subsets <- function(df, subset_sizes) {
   results <- list()
   
   for (size in subset_sizes) {
-    # Sample `size` rows from the dataframe
+    # Sample size rows from the dataframe
     subset_df <- df[sample(nrow(df), size), ]
     
     # Apply IHW and BH to the subset
@@ -69,7 +69,7 @@ ggplot() +
   geom_point(data = results_df, aes(x = SubsetSize, y = discoveries_ihw, colour = "IHW")) +
   geom_line(data = results_df, aes(x = SubsetSize, y = discoveries_bh, colour = "BH")) +
   geom_point(data = results_df, aes(x = SubsetSize, y = discoveries_bh, colour = "BH")) +
-  labs(title = "Number of Discoveries vs. Subset Size",
+  labs(title = "Number of Discoveries vs. Subset Size with RNA-seq dataset",
        x = "Subset Size",
        y = "Number of Discoveries",
        color = "Method") +

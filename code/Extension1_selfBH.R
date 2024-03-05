@@ -28,7 +28,6 @@ simulate_informative_data <- function(num_tests, prop_alt = 0.2, effect_size = 2
 num_tests <- 10000
 df <- as.data.frame(simulate_informative_data(num_tests))
 
-# Define the sizes of subsets you want to analyze
 subset_sizes <- seq(from = 3000, to = 10000, length.out = 8)
 
 # Nominal alpha levels to evaluate
@@ -43,7 +42,7 @@ calculate_fdr_bh <- function(pvalues, alpha) {
 
 # Perform the analysis for different subset sizes
 fdr_vs_alpha <- lapply(subset_sizes, function(size) {
-  # Sample 'size' rows from the dataframe
+  # Sample size rows from the dataframe
   subset_df <- df[sample(nrow(df), size), ]
   
   # Calculate FDR for each alpha level using BH

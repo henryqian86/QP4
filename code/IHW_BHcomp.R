@@ -20,8 +20,7 @@ size <- 1 / dispersion
 alphaDis <- function(size, mean_read_count) {
   # Generate simulated read counts
   cov <- rnbinom(n = num_genes, size = size, mu = mean_read_count)
-  
-  #cov <- df$Low_read_count
+
   pvalues <- df$p.value
   
   # Running IHW

@@ -70,7 +70,6 @@ calculate_fdr <- function(adj_pvalues, alpha) {
 # Nominal alpha levels to evaluate
 alpha_levels <- seq(0.01, 0.1, by = 0.01)
 
-# Assuming 'results' is your list of ihw_result objects
 fdr_vs_alpha <- lapply(names(results), function(size) {
   adj_pvalues <- results[[size]]@df$adj_pvalue
   fdrs <- sapply(alpha_levels, calculate_fdr, adj_pvalues = adj_pvalues)
