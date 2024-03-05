@@ -1,7 +1,7 @@
 ---
 title: "Report on Independent Hypothesis Weighting"
 author: Xihan Qian
-date: March, 2024
+date: March 6, 2024
 format: 
   pdf:
     documentclass: report
@@ -31,25 +31,27 @@ To address this limitation, a novel approach known as independent hypothesis wei
 
 ## 2. Methodology and Simulation
 
-There have been existing attempts to increase power by using covariates and this sections starts off by introducing some known methods.
+There have been existing attempts to increase power by using covariates and this sections starts off by introducing some known methods. Their advantages and disadvantages are discussed, leading to the formation of IHW.
 
 #### 2.1 Weighted and Group weighted BH procedure
-The weighted BH method has $m$ hypotheses $H_1, H_2, \dots, H_m$ and $m$ weights $w_1, w_2, \dots, w_m \geq 0$ that satisfy $\frac{1}{m}\sum_{i=1}^m w_i=1.$ After the weights are obtained, the BH procedure is applied on the modified $p$-values: $\frac{p_i}{w_i}$. In this scenario, selecting the weights before observing the $p$-values is essential, relying on prior knowledge or information indicating the likelihood of some hypotheses being true over others. This requirement presents a significant challenge, one that IHW seeks to address, and it utilizes the grouped weighted BH procedure (GBH). In this method, there are $G$ groups where each $X_i$ takes the same value within each group. GBH first estimates the proportion of null hypotheses by $\widehat{\pi}_{0}(g)$, then weights the hypotheses proportionally to $\frac{1-\widehat{\pi}_{0}(g)}{\widehat{\pi}_{0}(g)}$, and finally apply the BH procedure. However, the asymptotic theories in this method doesn't function well when the number of hypotheses $\frac{m}{G}$ is finite [@ignatiadis2021covariate]. To resolve this issue, cross-weighting is used, where the idea is analogous to cross-fitting in regression settings, and this gives rise to the naive version of IHW.
+The weighted BH procedure has $m$ hypotheses $H_1, H_2, \dots, H_m$ and $m$ weights $w_1, w_2, \dots, w_m \geq 0$ that satisfy $\frac{1}{m}\sum_{i=1}^m w_i=1.$ After the weights are obtained, the BH procedure is applied on the modified $p$-values: $\frac{p_i}{w_i}$. In this scenario, selecting the weights before observing the $p$-values is essential, relying on prior knowledge or information indicating the likelihood of some hypotheses being true over others. This requirement presents a significant challenge, one that IHW seeks to address, and it utilizes the grouped weighted BH procedure (GBH). In this method, there are $G$ groups with covariate $X = (X_1, X_2, \dots, X_m)$, where each $X_i$ takes the same value within each group. GBH first estimates the proportion of null hypotheses by $\widehat{\pi}_{0}(g)$, then weights the hypotheses proportionally to $\frac{1-\widehat{\pi}_{0}(g)}{\widehat{\pi}_{0}(g)}$, and finally applies the BH procedure. However, the asymptotic theories in this method doesn't function well when the number of hypotheses $\frac{m}{G}$ is finite [@ignatiadis2021covariate]. To resolve this issue, cross-weighting is used, where the idea is analogous to cross-fitting in regression settings, and this gives rise to the naive version of IHW.
 
 #### 2.2 Naive IHW and two-groups model
-This version, also abbreviated as IHW-GBH since it is based off GBH, first divides the hypothesis tests into $G$ groups based on the values of covariate $X = (X_1, X_2, \dots, X_m)$, with $m_g$ number of hypotheses in the $g$-th group. It is also assumed that we have access to the $p$-values $P=(P_1, P_2, \dots, P_m)$, which is independent of $X$ under the null. With this setup, $\sum_{g=1}^G m_g=m$. Then the weighted BH procedure is applied with each possible weight vector $\boldsymbol{w} = (w_1, w_2, \dots, w_G),$ while the optimal $\boldsymbol{w}^*$ is the vector that lead to the most rejections. This method extends the BH procedure, making it pertinent to discuss the associated maximization problem. This problem stems from the two groups model [@efron2008microarrays], which is a 
+This version, also abbreviated as IHW-GBH since it is based off GBH, first divides the hypothesis tests into $G$ groups based on the values of covariate $X$, with $m_g$ number of hypotheses in the $g$-th group. It is also assumed that we have access to the $p$-values $P=(P_1, P_2, \dots, P_m)$, which is independent of $X$ under the null. With this setup, $\sum_{g=1}^G m_g=m$. Then the weighted BH procedure is applied with each possible weight vector $\boldsymbol{w} = (w_1, w_2, \dots, w_G),$ while the optimal $\boldsymbol{w}^*$ is the vector that leads to the most rejections. This method extends the BH procedure, making it pertinent to discuss the associated maximization problem. This problem stems from the two groups model [@efron2008microarrays], which is a 
 Bayesian framework that explains the BH procedure. 
 Formally, assume that $H_i$ takes values 0 or 1, and $\pi_0 = \mathbb{P}(H_i = 0)$. The distributions are as follows:
 \begin{align*} & H_i \sim \text { Bernoulli }\left(1-\pi_0\right) \\ & P_i \mid H_i=0 \sim U[0,1] \\ & P_i \mid H_i=1 \sim F_{1}\end{align*}
 
 The marginal distribution for $p$-value $P_i$ is then 
 \begin{align*}
-    P_i \sim F(t)=\pi_0 t+\left(1-\pi_0\right) F_1(t)
+    P_i \sim F(t)=\pi_0 t+\left(1-\pi_0\right) F_1(t),
 \end{align*}
 
-With this, the Bayesian FDR becomes: 
+where $F_1$ is the distribution for the alternative hypothesis.
+
+With this, the Bayesian FDR becomes [@ignatiadis2016data]: 
 \begin{align*}
-    \operatorname{Fdr}(t)=\mathbb{P}\left[H_i=0 \mid P_i \leq t\right]=\frac{\pi_0 t}{F(t)}
+    \operatorname{Fdr}(t)=\mathbb{P}\left[H_i=0 \mid P_i \leq t\right]=\frac{\pi_0 t}{F(t)}.
 \end{align*}
 
 A natural empirical estimator for the CDF would be the ECDF, and it can be written in terms of $R(t)$, which denotes the total number of rejections: $$R(t)=m\widehat{F}(t)=\sum_{i=1}^m \mathbf{1}_{\left\{P_i \leq t\right\}}$$
@@ -80,10 +82,10 @@ where $R(t, \mathbf{w}) = \sum_{i=1}^m \mathbf{1}_{\left\{P_i \leq w_gt\right\}}
 However, with this approach, there are also some disadvantages including potential loss of Type I error, complications in solving the maximization problem, and its inability to scale when large number of tests are present. That is why modifications are made, leading to the IHW method.
 
 #### 2.3 IHW
-In the first modification, the ECDF $\hat{F}_g$ of the $p$-values in group $g$ is replaced by the least concave majorant version called the Grenander estimator $\tilde{F}_g$. With this the maximization problem can be efficiently solved. The second modification involves randomly splitting the hypotheses into $K$ folds, where $K$ is usually taken to be 5. Then the maximization problem with the previous modification is applied to the remaining folds, leading to a weight $\tilde{w}=\left(\widetilde{w}_1, \ldots, \widetilde{w}_G\right)$. The independence criterion between the hypotheses would guarantee the $p$-value $P_i$ to be independent of the assigned weight $w_i$ when the null hypothesis is true. The third modification ensures that the weights learned with $K-1$ folds can be generalized to the held-out fold by adding a regularization parameter $\lambda$. The specific constraints are customized to whether the covariates are ordered or not. 
+The formal IHW method derives from the naive approach with three modifications [@ignatiadis2016data]. In the first modification, the ECDF $\hat{F}_g$ of the $p$-values in group $g$ is replaced by the least concave majorant version called the Grenander estimator $\tilde{F}_g$. With this the maximization problem can be efficiently solved. The second modification involves randomly splitting the hypotheses into $K$ folds, where $K$ is usually taken to be 5. Then the maximization problem with the previous modification is applied to the remaining folds, leading to a weight $\tilde{w}=\left(\widetilde{w}_1, \ldots, \widetilde{w}_G\right)$. The independence criterion between the hypotheses would guarantee the $p$-value $P_i$ to be independent of the assigned weight $w_i$ when the null hypothesis is true. The third modification ensures that the weights learned with $K-1$ folds can be generalized to the held-out fold by adding a regularization parameter $\lambda$. The specific constraints are customized to whether the covariates are ordered or not. 
 
 #### 2.4 Simulation
-Wanting to see how this packages work exactly, I used one of the datasets suggested by the paper using RNA-seq data with read counts for genes as a covariate [@bottomly2011evaluating]. It is worth noting that in the original dataset provided in the paper by Bottomly, the column of read counts is only binary, providing information of whether the counts are considered low or not based on a threshold after a log transformation. Without knowing the specific transformation applied, it is hard to achieve the original column, hence I self-generated a column of count reads using the negative binomial distribution. After trying some combinations, I chose the dispersion parameter to be 0.2 while the mean read counts is 1,000. The plot generated is as follows. There is a discrepancy between this plot and that generated in the paper possibly because the difference in the read counts, however, it can still be observed that the number of discoveries of IHW is no fewer than that of BH in most cases.
+Wanting to see how this packages work exactly, I used one of the datasets suggested by the paper using RNA-seq data with read counts for genes as a covariate [@bottomly2011evaluating]. It is worth noting that in the original dataset provided in the paper by Bottomly, the column of read counts is only binary, providing information of whether the counts are considered low or not based on a threshold after a log transformation. Without knowing the specific transformation applied, it is hard to achieve the original column, hence I self-generated a column of count reads using the negative binomial distribution. After trying some combinations, I chose the dispersion parameter to be 0.2 while the mean read counts is 1,000. The plot generated is as follows. There is a discrepancy between this plot and that generated in the paper possibly because the difference in the read counts, however, it can still be observed that the number of discoveries of IHW is no fewer than that of BH in most cases. This was an initial attempt in understanding the package and the dataset. More explorations and better results will be achieved in the following sections.
 
 
 
@@ -97,7 +99,7 @@ Wanting to see how this packages work exactly, I used one of the datasets sugges
 
 #### 2.5 Discussions
 
-One challenge that this method faces is that it largely depends on selecting an appropriate covariate that influences the power of each hypothesis test but is independent of the p-values under the null hypothesis. Identifying such a covariate is challenging and crucial; an unsuitable choice can diminish IHW's benefits or even degrade performance compared to traditional correction methods. This is a reason of why the plot above doesn't show great improvements. Another possible limitation is when there are datasets with high heterogeneity, where the covariate's relationship to test power varies significantly. In such cases, IHW's ability to accurately weight hypotheses could be compromised, potentially leading to less effective multiple testing correction. 
+One challenge that this method faces is that it largely depends on selecting an appropriate covariate that influences the power of each hypothesis test but is independent of the $p$-values under the null hypothesis. Identifying such a covariate is challenging and crucial; an unsuitable choice can diminish IHW's benefits or even degrade performance compared to traditional correction methods. This is a reason of why the plot above doesn't show great improvements. Another possible limitation is when there are datasets with high heterogeneity, where the covariate's relationship to test power varies significantly. In such cases, IHW's ability to accurately weight hypotheses could be compromised, potentially leading to less effective multiple testing correction. 
 
 ## 3. Extensions
 
@@ -114,7 +116,7 @@ In statistical analysis, especially with multiple hypothesis testing, model perf
 
 The nominal $\alpha$ level is set to be 0.01 here. I have tried various values ranging from 0.01 to 0.10 while the plot doesn't differ much. First off, it can be observed that as subset size grows, there are more discoveries for both IHW and BH. This can be due to several reasons. As the size grows, the statistical power is increased, leading to more rejections. It is also possible that larger subsets may enable the detection of smaller effect sizes that would be indiscernible in smaller subsets due to insufficient power. The ability to identify these smaller effects contributes to the overall increase in the number of discoveries as subset size grows. However, the number of discoveries for BH and IHW seem similar in general, with that of IHW to be higher at some points. This doesn't seem desired, but I wanted to explore and interpret through more plots.
 
-I thought it would also be intereting to generate a plot of nominal $\alpha$ and FDR for comparisons. I applied it usin the IHW method first, and obtained the following:
+I thought it would also be interesting to generate a plot of nominal $\alpha$ and FDR for comparisons. I applied it usin the IHW method first, and obtained the following:
 
 ```{r}
 #| echo: false
@@ -123,9 +125,9 @@ I thought it would also be intereting to generate a plot of nominal $\alpha$ and
 #| file: ../code/Extension1_FDRwAlpha.R
 ```
 
-Initially, I found it quite surprising that the curves were well below the $y=x$ line, suggesting that IHW is more conservative than expected. This observation was unexpected, especially since the plots in the paper indicated that for IHW, the curves should be closer to the diagonal line. The main reason why I think this is happening is because of the fact that I generated the covariate column myself through negative binomial distributions. In the context of IHW, the covariate should be informative about the power of each test, while randomly generating covariates might violate this condition. As for the effect of the subset sizes, it seems that the curves don't differ much as the size grows. One likely explanation is that the true positive rate could be homogeneous across the subsets. In this case the FDR control mechanisms will behave similarly across different sizes. This means that the proportion of true positives to false positives remains constant, and thus the estimated FDR will be similar. Another reason could be that all subsets are large enough to have adequate power. Then the increase in subset size may not lead to a proportionate increase in the number of rejections because the power of the test is already high in the smaller subsets.
+Initially, I found it quite surprising that the curves were well below the $y=x$ line, suggesting that IHW is more conservative than expected. This observation was unexpected, especially since the plots in the paper indicated that for IHW, the curves should be closer to the diagonal line. The main reason why I think this is happening is because of the fact that I generated the covariate column myself through negative binomial distributions. In the context of IHW, the covariate should be informative about the power of each test, while randomly generating covariates might violate this condition. As for the effect of the subset sizes, it seems that the curves don't differ much as the size grows. One likely explanation is that all subsets are large enough to have adequate power. Then the increase in subset size may not lead to a proportionate increase in the number of rejections because the power of the test is already high in the smaller subsets.
 
-It then occurred to me then that it could be beneficial to also have a similar plot but with the BH procedure. Hence I also produced the following plot. Since there are multiple sizes I tried, I placed the two methods in two separate plots for comparisons.
+It then occurred to me then that it could be beneficial to also have a similar plot but with the BH procedure. Hence I also produced the following plot. Since there are multiple sizes I tried, I placed this as a separate plot.
 
 ```{r}
 #| echo: false
@@ -171,7 +173,7 @@ This is still similar to that by using the BH procedure:
 
 As it can been seen, the informativeness of the covariate in using IHW is essential in increasing the number of discoveries. Improvements can be made by selecting covariates that are more predictive of the power of each test. If possible, transformations could potentially be applied to the covariate vector to better capture information that affects test power. As shown in the first plot of the section, as the sample sizes increases, it helps IHW to find more discoveries than methods like BH procedure while both have FDR under control.
 
-#### 3.3 More covariates
+#### 3.3 More covariates with PCA
 
 Given that the current implementation of IHW is designed to work with a single covariate, integrating multiple covariates into this framework presents a methodological challenge. However, several strategies could be employed to utilize multiple covariates effectively within the IHW. For instance, when there are multiple columns of informative covariates, Principal Component Analysis (PCA) can be utilized to reduce the dimensionality of covariates for IHW. Using my own simulated data again, in addition to the one column of covariate from before, I added another column that is related to the effect size with some slight parameter variations, while applying PCA. I used the first principal component, which explains the most variance, as the new covariate and applied the same procedure as before. The number of discoveries made compared with the BH procedure is again plotted:
 
@@ -184,6 +186,8 @@ Given that the current implementation of IHW is designed to work with a single c
 
 
 There are some slight differences as before since now the covariate vector has been modified, however, the general trend still remains the same and similar interpretations can be made.
+
+#### 3.4 More covariates with regression
 
 Another possible way is to incorporate the information of the multiple columns of covariates into one composite column, which is similiar compared with PCA in the sense that PCA decomposes the covariate matrix into principal components (PCs), each a linear combination of the original covariates. A regression-based approach to generate this composite covariate can be particularly informative, as it allows the use of a model to estimate an aspect of the tests from multiple covariates. I included effect size in the regression model while using the predicted covariate as the new column. I expected the plot to be similar and it did:
 
